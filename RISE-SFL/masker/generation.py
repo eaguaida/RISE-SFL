@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from torchvision.transforms.functional import resize, InterpolationMode
-import tqdm
+from tqdm import tqdm
 import numpy as np
 
 class SFL:
