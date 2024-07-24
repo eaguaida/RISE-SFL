@@ -66,7 +66,7 @@ class SFL:
                 if len(pass_indices) > 0:
                     batch_masks[pass_indices] = self.generate_support_masks(len(pass_indices), s, 0.2, input_size=(height, width))
                 if len(fail_indices) > 0:
-                    batch_masks[fail_indices] = self.generate_support_masks(len(fail_indices), s, 0.8, input_size=(height, width))
+                    batch_masks[fail_indices] = self.generate_support_masks(len(fail_indices), s, 0.6, input_size=(height, width))
                 
                 # Apply masks to all images in the batch simultaneously
                 masked_images = torch.mul(batch_masks, img_tensor.expand(batch_size_current, -1, -1, -1))
