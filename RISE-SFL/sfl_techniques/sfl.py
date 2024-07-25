@@ -38,7 +38,7 @@ class RelevanceScore:
         all_indices = torch.arange(N, device=self.device)
         pass_indices = all_indices[all_indices % 2 == (0 if N % 2 == 0 else 1)]
         fail_indices = all_indices[all_indices % 2 != (0 if N % 2 == 0 else 1)]
-
+        mask = mask.to(self.device)
         shape = (N, 1, H, W)
         tensor_ones = torch.ones(shape).to(self.device)
 
@@ -100,13 +100,3 @@ class RelevanceScore:
         dataset = self.create_pixel_dataset(img.shape)
         return dataset
 
-
-# Usage example:
-img = torch.randn((10, 3, 32, 32))  # Example tensor, replace with actual image tensor
-masks = torch.randn((10, 1, 32, 32))  # Example masks, replace with actual masks
-N = 10  # Number of samples
-
-relevance_score_calculator = RelevanceScore(device='cuda')
-pixel_dataset = relevance_score_calculator.run(img, masks, N)
-
-# 'pixel_dataset' now contains the dataset with scores for each pixel.
