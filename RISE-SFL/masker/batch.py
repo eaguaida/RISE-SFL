@@ -8,18 +8,22 @@ class SFL_batch(SFL):
     def __init__(self, model, input_size):
         super().__init__(model, input_size)
 
-    def generate_batch_images(self, image_folder, N, s, p1, target_class, batch_size=50):
+    def generate_batch_images(self, image_folder, N, s, p1, batch_size=50):
         # Get all image files from the folder
         image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        
         all_masks = []
         all_sampled_tensors = []
 
         for img_file in tqdm(image_files, desc="Processing images"):
             # Load and preprocess the image using read_tensor
             img_path = os.path.join(image_folder, img_file)
-            img_tensor = read_tensor(img_path).unsqueeze(0).to(self.device)
+            img_tensor = read_tensor(img_path).to(self.device)
+            with torch.no_grad():
+                output = self.model(img_tensor)
+                top_probabilities, top_classes = torch.topk(output, k=1, dim=1)
+                top_pred_class = top_classes[0][0].item()
 
+            target_class = top_pred_class
             # Process this image
             _, channels, height, width = img_tensor.shape
             masks = torch.empty((1, N, 1, height, width), device=self.device)
@@ -28,7 +32,6 @@ class SFL_batch(SFL):
             for start_idx in range(0, N, batch_size):
                 end_idx = min(start_idx + batch_size, N)
                 batch_size_current = end_idx - start_idx
-                
                 batch_masks = torch.empty((batch_size_current, 1, height, width), device=self.device)
                 found_flags = torch.zeros(batch_size_current, dtype=torch.bool, device=self.device)
                 
