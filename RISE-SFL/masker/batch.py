@@ -2,8 +2,12 @@ import os
 import torch
 from tqdm import tqdm
 from .generation import SFL
-from RISE_SFL.utils.utils import read_tensor
 
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import utils
 class SFL_batch(SFL):
     def __init__(self, model, input_size):
         super().__init__(model, input_size)
@@ -17,7 +21,7 @@ class SFL_batch(SFL):
         for img_file in tqdm(image_files, desc="Processing images"):
             # Load and preprocess the image using read_tensor
             img_path = os.path.join(image_folder, img_file)
-            img_tensor = read_tensor(img_path).to(self.device)
+            img_tensor = utils.read_tensor(img_path).to(self.device)
             with torch.no_grad():
                 output = self.model(img_tensor)
                 top_probabilities, top_classes = torch.topk(output, k=1, dim=1)
