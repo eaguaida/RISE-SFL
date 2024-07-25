@@ -1,12 +1,4 @@
-import os
-import torch
-from tqdm import tqdm
-from .generation import SFL
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import utils
+from _innit_ import *
 class SFL_batch(SFL):
     def __init__(self, model, input_size):
         super().__init__(model, input_size)
