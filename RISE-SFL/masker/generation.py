@@ -4,6 +4,9 @@ from torchvision.transforms.functional import resize, InterpolationMode
 from tqdm import tqdm
 import numpy as np
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import utils
+
 class SFL:
     def __init__(self, model, input_size):
         self.model = model
@@ -44,8 +47,9 @@ class SFL:
         self.N = self.masks.shape[0]
     
     @torch.no_grad()
-    def generate_mutants_batch(self, img_tensor, N, s, p1, target_class, batch_size=50):
-        #img_tensor = img_tensor.to(self.device).clone().detach().requires_grad_(False)        
+    def generate_mutants_batch(self, img_path, N, s, p1, target_class, batch_size=50):   
+        self.path = img_path
+        img_tensor = utils.read_tensor(img_path).to(self.device).requires_grad_(False)
         _, channels, height, width = img_tensor.shape
         self.masks = torch.empty((N, 1, height, width), device=self.device)
         sampled_tensor = torch.empty((N, channels, height, width), device=self.device)

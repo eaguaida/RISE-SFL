@@ -30,6 +30,7 @@ class RelevanceScore:
         self.Np = None
         self.Nf = None
         self.scores_dict = {}
+        self.dataset = []
 
     def calculate_relevance_scores(self, sampled_tensor, mask, N):
         sampled_tensor = sampled_tensor.to(self.device)
@@ -57,7 +58,6 @@ class RelevanceScore:
 
     def calculate_all_scores(self, img, masks, N):
         self.calculate_relevance_scores(img, masks, N)
-
         ochiai_scores = FaultLocalizationMetrics.calculate_ochiai(self.Ef, self.Ep, self.Nf, self.Np)
         tarantula_scores = FaultLocalizationMetrics.calculate_tarantula(self.Ef, self.Ep, self.Nf, self.Np)
         zoltar_scores = FaultLocalizationMetrics.calculate_zoltar(self.Ef, self.Ep, self.Nf, self.Np)
@@ -78,7 +78,6 @@ class RelevanceScore:
 
     def create_pixel_dataset(self, img_shape):
         H, W = img_shape[-2:]
-        dataset = []
         for i in range(H):
             for j in range(W):
                 pixel_data = {
@@ -92,8 +91,8 @@ class RelevanceScore:
                     'zoltar': self.scores_dict['zoltar'][0, i, j].item(),
                     'wong1': self.scores_dict['wong1'][0, i, j].item()
                 }
-                dataset.append(pixel_data)
-        return dataset
+                self.dataset.append(pixel_data)
+        return self.dataset
 
     def run(self, img, masks, N):
         self.calculate_all_scores(img, masks, N)
