@@ -38,7 +38,7 @@ def tensor_imshow(inp, title=None, **kwargs):
 
 # Given label number returns class name
 def get_class_name(c):
-    labels = np.loadtxt('/content/RISE-SFL/RISE-SFL/utils/synset_words.txt', str, delimiter='\t')
+    labels = np.loadtxt('utils/synset_words.txt', str, delimiter='\t')
     return ' '.join(labels[c].split(',')[0].split()[1:])
 
 
