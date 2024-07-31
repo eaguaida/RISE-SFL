@@ -26,7 +26,7 @@ class SaliencyMapVisualizer:
         self.scores_dict = relevance_score_instance.scores_dict
         self.dataset = relevance_score_instance.dataset
 
-    def visualize_pixel_scores(self, original_image_array):
+    def visualize_pixel_scores(self):
         H, W = (224,224)
         scores = {
             'Ep': np.zeros((H, W)),
@@ -62,7 +62,7 @@ class SaliencyMapVisualizer:
             ax = axs[row, col]
             
             # Create the heatmap
-            im = ax.imshow(original_image_array, cmap='gray', alpha=1)
+            im = ax.imshow(self.original_image_array, cmap='gray', alpha=1)
             im = ax.imshow(score_data, cmap=cmap, alpha=0.5)
             ax.set_title(score_type)
             ax.axis('off')
