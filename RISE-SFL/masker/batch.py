@@ -26,7 +26,7 @@ class SFL_batch(SFL):
                 output = self.model(img_tensor)
                 top_probabilities, top_classes = torch.topk(output, k=1, dim=1)
                 target_class = top_classes[0][0].item()
-            
+            class_name = utils.get_class_name(target_class)
             # Process this image
             _, channels, height, width = img_tensor.shape
             masks = torch.empty((1, N, 1, height, width), device=self.device)
@@ -87,7 +87,7 @@ class SFL_batch(SFL):
             all_sampled_tensors.append(sampled_tensor)
             
             avg_iterations = total_iterations / N
-            print(f"{img_file} processed. Average iterations per mask: {avg_iterations:.2f}, p1: {p1:.2f}, p2: {p2:.2f}")
+            print(f"{img_file} processed. Average iterations per mask: {avg_iterations:.2f}, p1: {p1:.2f}, p2: {p2:.2f} - Explanation for {class_name}")
         
          # Stack results from all images
         combined_masks = torch.cat(all_masks, dim=0)
