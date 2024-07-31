@@ -11,7 +11,7 @@ class SFL_batch(SFL):
     def __init__(self, model, input_size):
         super().__init__(model, input_size)
 
-    def generate_batch_images(self, image_folder, N, s, initial_p1=0.2, initial_p2=0.8, batch_size=50, max_iterations=1000):
+    def generate_batch_images(self, image_folder, N, s, initial_p1=0.2, initial_p2=0.8, batch_size=50):
         # Get all image files from the folder
         image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         all_masks = []
@@ -42,7 +42,7 @@ class SFL_batch(SFL):
                 found_flags = torch.zeros(batch_size_current, dtype=torch.bool, device=self.device)
                 
                 iterations = 0
-                while not found_flags.all() and iterations < max_iterations:
+                while not found_flags.all():
                     # Generate masks for all unfound samples in the batch
                     unfound_indices = torch.where(~found_flags)[0]
                     pass_indices = unfound_indices[unfound_indices % 2 == 0]
@@ -79,9 +79,7 @@ class SFL_batch(SFL):
                         p1 = min(p1 + 0.1, 1.0)
                         p2 = max(p2 - 0.1, 0.0)
                         print(f"Adjusting parameters for {img_file}: p1 = {p1:.2f}, p2 = {p2:.2f}")
-                
-                if iterations >= max_iterations:
-                    print(f"Warning: Max iterations reached for {img_file}. Some masks may not be optimal.")
+
             
             all_masks.append(masks)
             all_sampled_tensors.append(sampled_tensor)
