@@ -15,18 +15,17 @@ from sfl_techniques import sfl
 class SaliencyMapVisualizer:
     def __init__(self, img_path, device='cuda'):
         # Initialize and compute the relevance scores
-        original_image = Image.open(img_path).resize((224, 224)).convert('L')
+        self.original_image = Image.open(img_path).resize((224, 224)).convert('L')
         self.original_image_array = np.array(original_image)
-        relevance_score_instance = sfl.RelevanceScore(device=device)
+
         # Retrieve the saved scores and values from the RelevanceScore instance
         self.Ep = relevance_score_instance.Ep
         self.Ef = relevance_score_instance.Ef
         self.Np = relevance_score_instance.Np
         self.Nf = relevance_score_instance.Nf
-        self.scores_dict = relevance_score_instance.scores_dict
-        self.dataset = relevance_score_instance.dataset
 
-    def visualize_pixel_scores(self):
+
+    def visualize_pixel_scores(self, dataset):
         H, W = (224,224)
         scores = {
             'Ep': np.zeros((H, W)),
@@ -39,7 +38,7 @@ class SaliencyMapVisualizer:
             'wong1': np.zeros((H, W))
         }
         
-        for pixel in self.dataset:
+        for pixel in dataset:
             i, j = pixel['position']
             for score_type in scores.keys():
                 scores[score_type][i, j] = pixel[score_type]
