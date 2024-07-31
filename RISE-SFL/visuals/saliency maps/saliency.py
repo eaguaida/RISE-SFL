@@ -16,7 +16,7 @@ class SaliencyMapVisualizer:
     def __init__(self, img_path, device='cuda'):
         # Initialize and compute the relevance scores
         self.original_image = Image.open(img_path).resize((224, 224)).convert('L')
-        self.original_image_array = np.array(original_image)
+        self.original_image_array = np.array(self.original_image)
 
         # Retrieve the saved scores and values from the RelevanceScore instance
         self.Ep = relevance_score_instance.Ep
