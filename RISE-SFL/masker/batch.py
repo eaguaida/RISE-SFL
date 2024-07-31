@@ -74,8 +74,8 @@ class SFL_batch(SFL):
                     iterations += 1
                     total_iterations += 1
                     
-                    # Adjust parameters if no masks are found in 80 iterations
-                    if iterations % 80 == 0 and not found_flags.any():
+                    # Adjust parameters if no masks are found in 100 iterations
+                    if iterations % 100 == 0 and not found_flags.any():
                         p1 = min(p1 + 0.1, 1.0)
                         p2 = max(p2 - 0.1, 0.0)
                         print(f"Adjusting parameters for {img_file}: p1 = {p1:.2f}, p2 = {p2:.2f}")
@@ -87,6 +87,6 @@ class SFL_batch(SFL):
             all_sampled_tensors.append(sampled_tensor)
             
             avg_iterations = total_iterations / N
-            print(f"Image {img_file} processed. Average iterations per mask: {avg_iterations:.2f}")
+            print(f"{img_file} processed. Average iterations per mask: {avg_iterations:.2f}, p1: {p1:.2f}, p2: {p2:.2f}")
         
         return all_masks, all_sampled_tensors
