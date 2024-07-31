@@ -89,4 +89,7 @@ class SFL_batch(SFL):
             avg_iterations = total_iterations / N
             print(f"{img_file} processed. Average iterations per mask: {avg_iterations:.2f}, p1: {p1:.2f}, p2: {p2:.2f}")
         
-        return all_masks, all_sampled_tensors
+         # Stack results from all images
+        combined_masks = torch.cat(all_masks, dim=0)
+        combined_sampled_tensors = torch.cat(all_sampled_tensors, dim=0)
+        return combined_masks, combined_sampled_tensors
