@@ -25,6 +25,9 @@ class FaultLocalizationMetrics:
 class RelevanceScore:
     def __init__(self, device='cuda'):
         self.device = device
+        self.reset()
+
+    def reset(self):
         self.Ep = None
         self.Ef = None
         self.Np = None
@@ -97,5 +100,7 @@ class RelevanceScore:
     def run(self, img, masks, N):
         self.calculate_all_scores(img, masks, N)
         dataset = self.create_pixel_dataset(img.shape)
-        return dataset
+        result = dataset.copy()  # Create a copy of the dataset
+        self.reset()
+        return result
 

@@ -18,7 +18,7 @@ class SaliencyMapVisualizer:
         self.original_image = Image.open(img_path).resize((224, 224)).convert('L')
         self.original_image_array = np.array(self.original_image)
 
-    def visualize_pixel_scores(self, dataset):
+    def visualize_pixel_scores(self, dataset, ins=''):
         H, W = (224,224)
         scores = {
             'Ep': np.zeros((H, W)),
