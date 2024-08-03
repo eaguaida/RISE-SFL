@@ -42,26 +42,49 @@ class SaliencyMapVisualizer:
         scores['zoltar']  = 1 - scores['zoltar']
         scores['wong1']  = 1 - scores['wong1']
         
+        if ins.lower() == 'all':
+            plot_scores = list(scores.keys())
+        elif ins.lower() in scores:
+            plot_scores = [ins.lower()]
+        else:  # Default case, including when ins is empty or 'None'
+            plot_scores = ['tarantula', 'ochiai', 'zoltar', 'wong1']
         # Set up the plot
-        fig, axs = plt.subplots(2, 4, figsize=(20, 10))
-        fig.suptitle("Pixel-wise Scores Visualization", fontsize=16)
-        # Define a color map
+        num_plots = len(plot_scores)
+        if num_plots == 1:
+            fig, ax = plt.subplots(figsize=(5, 4))  # 50% smaller than the original (10, 8)
+        else:
+            rows = (num_plots + 3) // 4  # Round up to the nearest multiple of 4
+            cols = min(4, num_plots)
+            fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 5*rows))
+            if num_plots > 1:
+                axes = axes.flatten()
+
+        fig.suptitle("Statistical Fault Localisation - Saliency Maps", fontsize=16)
         cmap = plt.get_cmap('jet')
-        # Plot each score type
-        for idx, (score_type, score_data) in enumerate(scores.items()):
-            row = idx // 4
-            col = idx % 4
-            ax = axs[row, col]
+
+        # Plot each selected score type
+        for idx, score_type in enumerate(plot_scores):
+            if num_plots == 1:
+                current_ax = ax
+            else:
+                current_ax = axes[idx]
             
             # Create the heatmap
-            im = ax.imshow(self.original_image_array, cmap='gray', alpha=1)
-            im = ax.imshow(score_data, cmap=cmap, alpha=0.5)
-            ax.set_title(score_type)
-            ax.axis('off')
+            current_ax.imshow(self.original_image_array, cmap='gray', alpha=1)
+            im = current_ax.imshow(scores[score_type], cmap=cmap, alpha=0.5)
+            current_ax.set_title(score_type.capitalize())
+            current_ax.axis('off')
+            
             # Add colorbar
-            divider = make_axes_locatable(ax)
+            divider = make_axes_locatable(current_ax)
             cax = divider.append_axes("right", size="5%", pad=0.05)
             plt.colorbar(im, cax=cax)
-        # Adjust layout and display
+
+        # Remove any unused subplots
+        if num_plots > 1:
+            for idx in range(num_plots, len(axes)):
+                fig.delaxes(axes[idx])
+
         plt.tight_layout()
         plt.show()
+        
