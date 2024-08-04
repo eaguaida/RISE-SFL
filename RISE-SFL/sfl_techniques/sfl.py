@@ -34,6 +34,10 @@ class RelevanceScore:
         self.Nf = None
         self.scores_dict = {}
         self.dataset = []
+        self.ochiai_array = None
+        self.tarantula_array = None
+        self.zoltar_array = None
+        self.wong1_array = None
 
     def calculate_relevance_scores(self, sampled_tensor, mask, N):
         sampled_tensor = sampled_tensor.to(self.device)
@@ -66,6 +70,11 @@ class RelevanceScore:
         zoltar_scores = FaultLocalizationMetrics.calculate_zoltar(self.Ef, self.Ep, self.Nf, self.Np)
         wong1_scores = FaultLocalizationMetrics.calculate_wong1(self.Ef, self.Ep, self.Nf, self.Np)
 
+        self.ochiai_array = ochiai_scores.detach().cpu().numpy().max() - ochiai_scores.detach().cpu().numpy()
+        self.tarantula_array = tarantula_scores.detach().cpu().numpy().max() - tarantula_scores.detach().cpu().numpy()
+        self.zoltar_array = zoltar_scores.detach().cpu().numpy().max() -zoltar_scores.detach().cpu().numpy()
+        self.wong1_array = wong1_scores.detach().cpu().numpy().max() - wong1_scores.detach().cpu().numpy()
+
         self.scores_dict = {
             'Ep': self.Ep,
             'Ef': self.Ef,
@@ -78,7 +87,7 @@ class RelevanceScore:
         }
 
         return self.scores_dict
-
+    
     def create_pixel_dataset(self, img_shape):
         H, W = img_shape[-2:]
         for i in range(H):
@@ -101,6 +110,10 @@ class RelevanceScore:
         self.calculate_all_scores(img, masks, N)
         dataset = self.create_pixel_dataset(img.shape)
         result = dataset.copy()  # Create a copy of the dataset
+        ochiai_array = self.ochiai_array.copy()
+        tarantula_array = self.tarantula_array.copy()
+        zoltar_array = self.zoltar_array.copy()
+        wong1_array = self.wong1_array.copy()
         self.reset()
-        return result
+        return result, ochiai_array, tarantula_array, zoltar_array, wong1_array
 

@@ -16,6 +16,7 @@ class SFL_batch(SFL):
         image_files = [f for f in os.listdir(image_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         all_masks = []
         all_sampled_tensors = []
+        target_list = []
 
         for img_file in tqdm(image_files, desc="Processing images"):
             # Load and preprocess the image using read_tensor
@@ -27,6 +28,7 @@ class SFL_batch(SFL):
                 top_pred_class = top_classes[0][0].item()
 
             target_class = top_pred_class
+            target_list.append(target_class)
             # Process this image
             _, channels, height, width = img_tensor.shape
             masks = torch.empty((1, N, 1, height, width), device=self.device)
@@ -74,4 +76,4 @@ class SFL_batch(SFL):
         # Stack results from all images
         combined_masks = torch.cat(all_masks, dim=0)
         combined_sampled_tensors = torch.cat(all_sampled_tensors, dim=0)
-        return combined_masks, combined_sampled_tensors
+        return combined_masks, combined_sampled_tensors, target_list 
