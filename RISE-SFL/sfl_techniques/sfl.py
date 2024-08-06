@@ -1,5 +1,6 @@
 import torch
-
+import numpy as np
+import math
 class FaultLocalizationMetrics:
     @staticmethod
     def calculate_ochiai(Ef, Ep, Nf, Np):
@@ -39,9 +40,9 @@ class RelevanceScore:
         self.zoltar_array = None
         self.wong1_array = None
 
-    def calculate_relevance_scores(self, sampled_tensor, mask, N):
+    def calculate_relevance_scores(self, confidence_scores, sampled_tensor, mask, N):
         sampled_tensor = sampled_tensor.to(self.device)
-
+    
         _, C, H, W = sampled_tensor.shape
         all_indices = torch.arange(N, device=self.device)
         pass_indices = all_indices[all_indices % 2 == (0 if N % 2 == 0 else 1)]
@@ -52,19 +53,27 @@ class RelevanceScore:
 
         executed_tensors = mask
         not_executed_tensors = tensor_ones - mask
+        good_scores = confidence_scores[::2]  # Every 2nd element, starting from index 0
+        fail_scores = confidence_scores[1::2]
 
-        e_pass_tensors = executed_tensors[pass_indices]
-        e_fail_tensors = executed_tensors[fail_indices]
-        n_pass_tensors = not_executed_tensors[pass_indices]
-        n_fail_tensors = not_executed_tensors[fail_indices]
+        good_scores = torch.tensor(good_scores, dtype=torch.float32, device=self.device)
+        fail_scores = torch.tensor(fail_scores, dtype=torch.float32, device=self.device)
+        m = math.ceil(N/2)
+        goodscalar = good_scores.view(m, 1, 1, 1)
+        badscalar = good_scores.view(m, 1, 1, 1)
+
+        e_pass_tensors = torch.mul(executed_tensors[pass_indices], goodscalar)
+        e_fail_tensors = torch.mul(executed_tensors[fail_indices], badscalar)
+        n_pass_tensors = torch.mul(not_executed_tensors[pass_indices], goodscalar)
+        n_fail_tensors = torch.mul(not_executed_tensors[fail_indices], badscalar)
 
         self.Ep = e_pass_tensors.sum(dim=0)
         self.Ef = e_fail_tensors.sum(dim=0)
         self.Np = n_pass_tensors.sum(dim=0)
         self.Nf = n_fail_tensors.sum(dim=0)
 
-    def calculate_all_scores(self, img, masks, N):
-        self.calculate_relevance_scores(img, masks, N)
+    def calculate_all_scores(self,confidence_scores, img, masks, N):
+        self.calculate_relevance_scores(confidence_scores,img, masks, N)
         ochiai_scores = FaultLocalizationMetrics.calculate_ochiai(self.Ef, self.Ep, self.Nf, self.Np)
         tarantula_scores = FaultLocalizationMetrics.calculate_tarantula(self.Ef, self.Ep, self.Nf, self.Np)
         zoltar_scores = FaultLocalizationMetrics.calculate_zoltar(self.Ef, self.Ep, self.Nf, self.Np)
@@ -106,8 +115,8 @@ class RelevanceScore:
                 self.dataset.append(pixel_data)
         return self.dataset
 
-    def run(self, img, masks, N):
-        self.calculate_all_scores(img, masks, N)
+    def run(self, confidence_scores, img, masks, N):
+        self.calculate_all_scores(confidence_scores,img, masks, N)
         dataset = self.create_pixel_dataset(img.shape)
         result = dataset.copy()  # Create a copy of the dataset
         ochiai_array = self.ochiai_array.copy()

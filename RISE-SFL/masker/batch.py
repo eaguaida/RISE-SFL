@@ -17,7 +17,6 @@ class SFL_batch(SFL):
         all_masks = []
         all_sampled_tensors = []
         target_list = []
-
         for img_file in tqdm(image_files, desc="Processing images"):
             # Load and preprocess the image using read_tensor
             img_path = os.path.join(image_folder, img_file)
